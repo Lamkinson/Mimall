@@ -16,5 +16,6 @@ module.exports = {
         config.resolve.alias //通过resolve.alias.set设置
             .set('components', path.join(__dirname, 'src/components'))
             .set('pages',path.join(__dirname,'src/pages'))
+            .set('storage',path.join(__dirname,'src/storage'))
     }
 }
