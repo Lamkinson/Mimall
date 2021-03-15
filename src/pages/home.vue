@@ -1,6 +1,5 @@
 <template>
     <div>
-        home
         <NavHeader></NavHeader>
         <router-view></router-view>
         <NavFooter></NavFooter>
@@ -19,4 +18,8 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+
+</style>
 

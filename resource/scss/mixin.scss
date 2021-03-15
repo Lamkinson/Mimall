@@ -1,0 +1,5 @@
+@mixin bgImg($url:'',$size:contain){
+    display: inline-block;
+    background: url($url) no-repeat center;
+    background-size: $size;
+}
