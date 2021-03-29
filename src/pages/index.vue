@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="index">
         <div class="container">
             <div class="swiper-box">
                 <div class="nav-menu">
@@ -8,14 +8,11 @@
                             class="menu-item"
                             v-for="(item, index) in menuList"
                             :key="index"
-                            @mouseenter="showMenu(index)"
-                            @mouseleave="hideMenu(index)"
-                            :class="{ 'bgOrange1': menuVisible[index].show }"
                         >
                             <a href="javascript:;"
                                 >{{ item.name }}<span class="icon"></span>
                             </a>
-                            <div class="sub-menu" v-show="menuVisible[index].show">
+                            <div class="sub-menu">
                                 <ul
                                     v-for="(subItem, index) in item.subMenu"
                                     :key="index"
@@ -44,10 +41,14 @@
                         </li>
                     </ul>
                 </div>
-                <swiper ref="mySwiper" class="swiper-no-swiping" :options="swiperOption">
+                <swiper
+                    ref="mySwiper"
+                    class="swiper-no-swiping"
+                    :options="swiperOption"
+                >
                     <swiper-slide
                         v-for="(item, index) in slideList"
-                        :key="index" 
+                        :key="index"
                     >
                         <a :href="'/#/product/' + item.id"
                             ><img :src="item.img"
@@ -65,12 +66,91 @@
                 </swiper>
             </div>
         </div>
+        <div class="ad-box">
+            <div class="ad-wrapper">
+                <a
+                    :href="'/#/product/' + item.id"
+                    v-for="(item, index) in adsList"
+                    :key="index"
+                >
+                    <img v-lazy="item.img" width="296" height="167"
+                /></a>
+            </div>
+        </div>
+        <div class="home-brick-box">
+            <div class="banner">
+                <a href="/#/product/30"
+                    ><img v-lazy="'/imgs/banner-1.png'" height="130"
+                /></a>
+            </div>
+            <div class="box-hd">
+                <h2 class="title">手机</h2>
+            </div>
+            <div class="box-bd">
+                <div class="banner-left">
+                    <a href="/#/product/35"
+                        ><img src="/imgs/mix-alpha.jpg" height="614"
+                    /></a>
+                </div>
+                <div class="banner-right">
+                    <ul
+                        class="phone-list"
+                        v-for="(colItem, index) in phoneList"
+                        :key="index"
+                    >
+                        <li
+                            class="phone-item"
+                            v-for="(rowItem, index) in colItem"
+                            :key="index"
+                        >
+                            <a :href="rowItem.src">
+                                <div class="figure">
+                                    <img
+                                        v-lazy="rowItem.img"
+                                        width="160"
+                                        height="160"
+                                    />
+                                </div>
+                                <h3 class="name">{{ rowItem.name }}</h3>
+                                <p class="desc">{{ rowItem.desc }}</p>
+                                <p
+                                    class="price"
+                                    @click.prevent="addCart(rowItem.id)"
+                                >
+                                    <span>{{ rowItem.price }}</span
+                                    >元<span>起</span>
+                                    <span
+                                        class="old-price"
+                                        v-if="rowItem.oldPrice"
+                                        >{{ rowItem.oldPrice }}元</span
+                                    >
+                                </p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
         <ServiceBar></ServiceBar>
+        <Modal
+            title="提示"
+            confirmText="查看购物车"
+            :btnType="1"
+            modal="middle"
+            :modalVisible="modalVisible"
+            @cancel="hideModal"
+            @submit="goToCart"
+        >
+            <template v-slot:body>
+                <p>商品添加成功</p>
+            </template>
+        </Modal>
     </div>
 </template>
 
 <script>
 import ServiceBar from 'components/ServiceBar'
+import Modal from 'components/Modal'
 // Import Swiper Vue.js components
 import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
 // Import Swiper styles
@@ -81,14 +161,14 @@ export default {
     data() {
         return {
             swiperOption: {
-                loop:true,
+                loop: true,
                 autoplay: {
-                    delay:3000,
+                    delay: 3000,
                     disableOnInteraction: false,
                 },
                 effect: 'fade',
-                fadeEffect:{
-                    crossFade:false
+                fadeEffect: {
+                    crossFade: false,
                 },
                 speed: 1000,
                 navigation: {
@@ -184,55 +264,138 @@ export default {
                 { name: '耳机 音箱' },
                 { name: '生活 箱包' },
             ],
-            menuVisible: [{
-                show:true,
-            },{
-                show:false,
-            },{
-                show:false,
-            },{
-                show:false,
-            },{
-                show:false,
-            },{
-                show:false,
-            },{
-                show:false,
-            },{
-                show:false,
-            },{
-                show:false,
-            },{
-                show:false,
-            },{
-                show:false,
-            },],
-            timeOut: [{},{}],
+            adsList: [
+                {
+                    id: 33,
+                    img: '/imgs/ads/ads-1.png',
+                },
+                {
+                    id: 48,
+                    img: '/imgs/ads/ads-2.jpg',
+                },
+                {
+                    id: 45,
+                    img: '/imgs/ads/ads-3.png',
+                },
+                {
+                    id: 47,
+                    img: '/imgs/ads/ads-4.jpg',
+                },
+            ],
+            phoneList: [
+                [
+                    {
+                        name: '小米10S',
+                        desc: '骁龙870 | 对称式双扬立体声',
+                        src: 'https://www.mi.com/mi10s',
+                        price: 3299,
+                        id:42,
+                        img:
+                            'https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/b3553083a4975325eab6470d94465548.jpg?thumb=1&w=320&h=320&f=webp&q=90',
+                    },
+                    {
+                        name: 'Redmi K40 Pro系列',
+                        desc: '骁龙888 / E4 旗舰直屏',
+                        src: 'https://www.mi.com/redmik40ultra-k40pro',
+                        price: 2799,
+                        id:43,
+                        img:
+                            'https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/68217751d12b1bfd2f9766e458b5e2dd.jpg?thumb=1&w=320&h=320&f=webp&q=90',
+                    },
+                    {
+                        name: 'Redmi K40',
+                        desc: '骁龙870，新一代 E4 AMOLED旗舰直屏',
+                        src: 'https://www.mi.com/redmik40ultra-k40pro',
+                        price: 1999,
+                        id:44,
+                        img:
+                            'https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/73617424da6ff6b64f9c630387bca874.jpg?thumb=1&w=320&h=320&f=webp&q=90',
+                    },
+                    {
+                        name: '小米11',
+                        desc: '骁龙888 | 2K四曲面屏',
+                        src: 'https://www.mi.com/redmik40ultra-k40pro',
+                        price: 3999,
+                        id:45,
+                        img:
+                            'https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/5a260090e0e08770b0bd865845a4b4ab.jpg?thumb=1&w=320&h=320&f=webp&q=90',
+                    },
+                ],
+                [
+                    {
+                        name: '小米10',
+                        desc: '骁龙865/1亿像素相机',
+                        src: 'https://www.mi.com/redmik40ultra-k40pro',
+                        price: 3399,
+                        oldPrice: 3999,
+                        id:46,
+                        img:
+                            'https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/0099822e42b4428cb25c4cdebc6ca53d.jpg?thumb=1&w=320&h=320&f=webp&q=90',
+                    },
+                    {
+                        name: 'Note 9 Pro',
+                        desc: '一亿像素夜景相机，120Hz六档变速高刷屏',
+                        src: 'https://www.mi.com/redmik40ultra-k40pro',
+                        price: 1599,
+                        id:47,
+                        img:
+                            'https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/4e75e528fb468aee107f551179aa0799.jpg?thumb=1&w=320&h=320&f=webp&q=90',
+                    },
+                    {
+                        name: 'Note 9',
+                        desc: '天玑 800U处理器，5000mAh电池，',
+                        src: 'https://www.mi.com/redmik40ultra-k40pro',
+                        price: 1299,
+                        id:48,
+                        img:
+                            'https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/de2f71a797a74e1ca70f1fb4570bc026.jpg?thumb=1&w=320&h=320&f=webp&q=90',
+                    },
+                    {
+                        name: 'Note 9 4G',
+                        desc: '6000mAh长续航',
+                        src: 'https://www.mi.com/redmik40ultra-k40pro',
+                        price: 999,
+                        id:49,
+                        img:
+                            'https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/13f10e47913f9dc82e6c6a6199f413cd.jpg?thumb=1&w=320&h=320&f=webp&q=90',
+                    },
+                ],
+            ],
+            modalVisible: false,
         }
     },
     methods: {
-        showMenu(index) {
-            if(this.timeOut[index]) clearTimeout(this.timeOut[index])
-            this.timeOut[index] = setTimeout(() => {
-                //this.menuVisible[index].show=true
-            }, 150)
+        hideModal() {
+            this.modalVisible = false
         },
-        hideMenu(index) {
-            if(this.timeOut[index]) clearTimeout(this.timeOut[index])
-            this.timeOut[index] = setTimeout(() => {
-                //this.menuVisible[index].show=false
-            }, 150)
+        goToCart() {
+            this.$router.push('/cart')
+        },
+        addCart(id) {
+            this.axios
+                .post('/carts', {
+                    productId: id,
+                    selected: true,
+                })
+                .then((res) => {
+                    this.modalVisible = true
+                    this.$store.dispatch('saveCartCount',res.cartTotalQuantity)
+                })
+                .catch((err) => {
+                    this.modalVisible = true
+                })
         },
     },
     components: {
         ServiceBar,
         Swiper,
         SwiperSlide,
+        Modal,
     },
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import 'resource/scss/mixin';
 @import 'resource/scss/config.scss';
 
@@ -260,9 +423,9 @@ export default {
                     padding-left: 30px;
                     font-size: 14px;
                     box-sizing: border-box;
-                    &:hover{
-                        background-color: $colorA;;
-                        .sub-menu{
+                    &:hover {
+                        background-color: $colorA;
+                        .sub-menu {
                             display: flex;
                         }
                     }
@@ -278,6 +441,9 @@ export default {
                             background-color: #fff;
                             height: 100%;
                             li {
+                                &:hover a {
+                                    color: $colorA;
+                                }
                                 a {
                                     width: 225px;
                                     height: 40.66px;
@@ -351,6 +517,116 @@ export default {
             img {
                 width: 100%;
                 height: 100%;
+            }
+        }
+    }
+}
+.ad-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    .ad-wrapper {
+        padding: 14px 0;
+        min-width: $min-width;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        a {
+            display: inline-block;
+            margin-right: 14px;
+            &:last-child {
+                margin: 0;
+            }
+        }
+    }
+}
+.home-brick-box {
+    .banner {
+        width: $min-width;
+        padding: 17px 0;
+        margin-bottom: 34px;
+        img {
+            width: 100%;
+        }
+    }
+    min-width: $min-width;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    padding: 4px 0 50px 0;
+    .box-hd {
+        height: 58px;
+        width: $min-width;
+        h2 {
+            font-size: 22px;
+            font-weight: 200;
+            color: #333;
+            line-height: 58px;
+        }
+    }
+    .box-bd {
+        width: $min-width;
+        display: flex;
+        .banner-left {
+            transition: all 0.5s;
+            &:hover {
+                box-shadow: 0px 10px 10px 10px rgba(0, 0, 0, 0.06);
+                transform: translate(0, -5px);
+            }
+        }
+        .banner-right {
+            height: 614px;
+            .phone-list {
+                display: flex;
+                .phone-item {
+                    display: inline-block;
+                    text-align: center;
+                    height: 260px;
+                    width: 234px;
+                    padding: 20px 0;
+                    margin-left: 14px;
+                    margin-bottom: 14px;
+                    background-color: #fff;
+                    transition: all 0.5s;
+                    &:hover {
+                        box-shadow: 0px 10px 10px 10px rgba(0, 0, 0, 0.06);
+                        transform: translate(0, -5px);
+                    }
+                    .figure {
+                        margin: 0 auto 18px;
+                    }
+                    a {
+                        color: #333;
+                        .name {
+                            font-weight: 400;
+                            margin: 0 10px 2px;
+                        }
+                        .desc {
+                            color: #b0b0b0;
+                            height: 18px;
+                            font-size: 12px;
+                            margin: 0 10px 10px;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                        .price {
+                            font-size: 14px;
+                            margin: 0 10px 14px;
+                            color: $colorA;
+                            .old-price {
+                                margin-left: 5px;
+                                color: #b0b0b0;
+                                text-decoration: line-through;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -3,19 +3,18 @@
         <div class="nav-topbar">
             <div class="container">
                 <div class="content-left">
-                    <a href="javascript:;">松果出行</a>
+                    <a href="javascript:;">Santi</a>
                     <a href="javascript:;">MIUI</a>
                     <a href="javascript:;">云服务</a>
                     <a href="javascript:;">协议规则</a>
                 </div>
                 <div class="content-right">
                     <a href="javascript:;" v-if="username">{{ username }}</a>
-                    <a href="javascript:;" v-if="!username" @click="login"
-                        >登录</a
-                    >
-                    <a href="javascript:;" v-if="username">我的订单</a>
-                    <a class="cart" @click="goToCart"
-                        ><span class="icon-cart"></span>购物车(0)</a
+                    <a href="javascript:;" v-if="!username" @click="login">登录</a>
+                    <a href="javascript:;" v-if="username" @click="logout">退出</a>
+                    <a href="javascript:;" v-if="username" @click="goToList">我的订单</a>
+                    <a class="cart" @click="goToCart" :class="{ 'has-cart-count': cartCount > 0 }"
+                        ><span class="icon-cart"></span>购物车({{ cartCount }})</a
                     >
                 </div>
             </div>
@@ -26,11 +25,7 @@
                     <a href="/#/index"></a>
                 </div>
                 <div class="header-menu">
-                    <div
-                        class="item"
-                        @mouseenter="showChildren"
-                        @mouseleave="hideChildren"
-                    >
+                    <div class="item" @mouseenter="showChildren" @mouseleave="hideChildren">
                         <span>小米手机</span>
                     </div>
                     <div class="item">
@@ -79,20 +74,10 @@
                 >
                     <div class="children">
                         <ul>
-                            <li
-                                class="product"
-                                v-for="(item, index) in phoneData"
-                                :key="index"
-                            >
-                                <a
-                                    :href="'/#/product/' + item.id"
-                                    target="_blank"
-                                >
+                            <li class="product" v-for="(item, index) in phoneData" :key="index">
+                                <a :href="'/#/product/' + item.id" target="_blank">
                                     <div class="pro-img">
-                                        <img
-                                            :src="item.mainImage"
-                                            width="160"
-                                        />
+                                        <img :src="item.mainImage" width="160" />
                                     </div>
                                     <div class="pro-name">{{ item.name }}</div>
                                     <div class="pro-price">
@@ -109,6 +94,7 @@
 </template>
 
 <script>
+import { Message } from 'element-ui'
 export default {
     name: 'NavHeader',
     data() {
@@ -116,8 +102,15 @@ export default {
             childrenVisible: false,
             chiildrenTimeOut: {},
             phoneData: [],
-            username: '',
         }
+    },
+    computed: {
+        username() {
+            return this.$store.state.username
+        },
+        cartCount() {
+            return this.$store.state.cartCount
+        },
     },
     mounted() {
         this.axios
@@ -129,6 +122,10 @@ export default {
             .then((res) => {
                 if (res.list.length > 6) this.phoneData = res.list.slice(0, 6)
             })
+        const params = this.$route.params
+        if (params && params.from === 'login') {
+            this.getCartCount()
+        }
     },
     filters: {
         toInt(val) {
@@ -156,8 +153,24 @@ export default {
         goToCart() {
             this.$router.push('/cart')
         },
+        goToList(){
+            this.$router.push('/order/list')
+        },
+        getCartCount() {
+            this.axios.get('/carts/products/sum').then((res = {}) => {
+                this.$store.dispatch('saveCartCount', res)
+            })
+        },
         login() {
             this.$router.push('/login')
+        },
+        logout() {
+            this.axios.post('/user/logout').then(() => {
+                Message.success('成功退出登录')
+                this.$cookie.set('userId', '', { expires: '-1' })
+                this.$store.dispatch('saveUsername', '')
+                this.$store.dispatch('saveCartCount', '0')
+            })
         },
     },
 }
@@ -192,6 +205,7 @@ export default {
                 background-color: #424242;
                 text-align: center;
                 cursor: pointer;
+                margin: 0;
                 .icon-cart {
                     @include bgImg('../../public/imgs/icon-cart.png');
                     width: 16px;
@@ -199,6 +213,10 @@ export default {
                     background-position-y: 2px;
                     margin-right: 4px;
                 }
+            }
+            .has-cart-count {
+                background-color: $colorA;
+                color: #fff;
             }
         }
     }

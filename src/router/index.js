@@ -3,13 +3,6 @@ import VueRouter from 'vue-router'
 
 import Home from 'pages/home'
 import Index from 'pages/index'
-import Product from 'pages/product'
-import Detail from 'pages/detail'
-import Order from 'pages/order'
-import OrderList from 'pages/orderList'
-import OrderConfirm from 'pages/orderConfirm'
-import OrderPay from 'pages/orderPay'
-import Alipay from 'pages/alipay'
 
 Vue.use(VueRouter)
 
@@ -28,48 +21,58 @@ const routes = [
             {
                 path: 'product/:id',
                 name: 'product',
-                component: Product,
+                component: ()=>
+                    import('pages/product'),
             },
             {
                 path: 'detail/:id',
                 name: 'detail',
-                component: Detail,
+                component: ()=>
+                    import('pages/detail'),
             },
         ],
     },
     {
         path: '/cart',
         name: 'cart',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
         component: () =>
-            import(/* webpackChunkName: "about" */ 'pages/cart'),
+            import('pages/cart'),
+    },
+    {
+        path:'/login',
+        name:'login',
+        component:()=>
+            import('pages/login'),
     },
     {
         path: '/order',
         name: 'order',
-        component: Order,
+        component: ()=>
+            import('pages/order'),
         children: [
             {
                 path: 'list',
                 name: 'order-list',
-                component: OrderList,
+                component: ()=>
+                    import('pages/orderList'),
             },
             {
                 path: 'confirm',
                 name: 'order-confirm',
-                component: OrderConfirm,
+                component: ()=>
+                    import('pages/orderConfirm'),
             },
             {
                 path:'pay',
                 name:'order-pay',
-                component:OrderPay
+                component: ()=>
+                    import('pages/orderPay'),
             },
             {
                 path:'alipay',
                 name:'alipay',
-                component:Alipay
+                component: ()=>
+                    import('pages/alipay'),
             }
         ],
     },
@@ -79,6 +82,12 @@ const router = new VueRouter({
     mode: 'hash',
     base: process.env.BASE_URL,
     routes,
+    
 })
+
+router.beforeEach ((to, from, next) =>{
+    console.log('changed');
+    next()
+  })
 
 export default router
